@@ -1,0 +1,31 @@
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="text-center mb-8">
+    <h1 class="text-2xl font-bold text-white">Search Tokens</h1>
+    <p class="text-sm text-gray-400 mt-1">Paste a Solana token address or search by name.</p>
+  </div>
+
+  <div class="mb-8">
+    <%= form_tag search_path, method: :get, class: "flex gap-3" do %>
+      <%= text_field_tag :q, params[:q], placeholder: "Token address or name...", class: "input-field flex-1 font-mono", autofocus: true %>
+      <button type="submit" class="btn-primary">
+        Search
+      </button>
+    <% end %>
+  </div>
+
+  <% if @query.present? %>
+    <% if @tokens.respond_to?(:any?) && @tokens.any? %>
+      <div class="space-y-3">
+        <% @tokens.each do |token| %>
+          <%= render "tokens/card", token: token %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="card text-center py-12">
+        <div class="text-4xl mb-4">&#128270;</div>
+        <h3 class="text-lg font-semibold text-white mb-2">No results found</h3>
+        <p class="text-gray-400">No tokens matching "<%= @query %>". If this is a new token address, it may need to be discovered first.</p>
+      </div>
+    <% end %>
+  <% end %>
+</div>

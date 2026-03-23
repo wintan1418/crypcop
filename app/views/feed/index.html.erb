@@ -1,0 +1,42 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Live Token Feed</h1>
+      <p class="text-sm text-gray-400 mt-1">New Solana tokens as they launch. Updated in real-time.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-brand-green animate-pulse"></span>
+      <span class="text-sm text-brand-green">Live</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
+    <%= link_to "All", feed_path, class: "btn-sm #{params[:risk].blank? ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'} border border-brand-border rounded-full px-4 py-1.5 text-sm whitespace-nowrap transition-colors" %>
+    <% Token.risk_levels.keys.each do |level| %>
+      <%= link_to level.capitalize, feed_path(risk: level), class: "btn-sm #{params[:risk] == level ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'} border border-brand-border rounded-full px-4 py-1.5 text-sm whitespace-nowrap transition-colors" %>
+    <% end %>
+  </div>
+
+  <!-- Token stream -->
+  <%= turbo_stream_from "token_feed" %>
+  <div id="token-feed" class="space-y-3">
+    <% if @tokens.any? %>
+      <% @tokens.each do |token| %>
+        <%= render "tokens/card", token: token %>
+      <% end %>
+    <% else %>
+      <div class="card text-center py-16">
+        <div class="text-4xl mb-4">&#128269;</div>
+        <h3 class="text-lg font-semibold text-white mb-2">No tokens yet</h3>
+        <p class="text-gray-400">Tokens will appear here as they are discovered and scanned.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @pagy && @pagy.pages > 1 %>
+    <div class="mt-8 flex justify-center">
+      <%== pagy_nav(@pagy) %>
+    </div>
+  <% end %>
+</div>

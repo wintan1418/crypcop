@@ -1,0 +1,10 @@
+<div class="flex items-center gap-3 px-4 py-3 rounded-lg border border-yellow-500/50 bg-yellow-500/10 text-yellow-400 shadow-lg" data-controller="toast" data-toast-target="message">
+  <span class="text-sm font-medium">
+    <%= alert.title %>
+  </span>
+  <button class="ml-auto text-current opacity-50 hover:opacity-100" data-action="click->toast#dismiss">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+</div>

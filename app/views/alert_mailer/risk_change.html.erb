@@ -1,0 +1,32 @@
+<div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0A0E17; color: #E5E7EB; padding: 32px;">
+  <div style="text-align: center; margin-bottom: 32px;">
+    <h1 style="color: #00FF88; font-size: 24px; margin: 0;">CrypCop Alert</h1>
+  </div>
+
+  <div style="background-color: #111827; border: 1px solid #1F2937; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+    <h2 style="color: #FFFFFF; font-size: 18px; margin: 0 0 8px 0;"><%= @alert.title %></h2>
+    <p style="color: #9CA3AF; font-size: 14px; margin: 0 0 16px 0;"><%= @alert.message %></p>
+
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="color: #9CA3AF; font-size: 13px; padding: 4px 0;">Token</td>
+        <td style="color: #FFFFFF; font-size: 13px; padding: 4px 0; text-align: right;"><%= @token.name || @token.symbol || @token.mint_address.truncate(20) %></td>
+      </tr>
+      <% if @token.risk_score %>
+      <tr>
+        <td style="color: #9CA3AF; font-size: 13px; padding: 4px 0;">Risk Score</td>
+        <td style="color: <%= @token.risk_score > 60 ? '#EF4444' : @token.risk_score > 40 ? '#F97316' : '#00FF88' %>; font-size: 13px; padding: 4px 0; text-align: right; font-weight: bold;"><%= @token.risk_score %>/100</td>
+      </tr>
+      <% end %>
+    </table>
+  </div>
+
+  <div style="text-align: center;">
+    <a href="<%= token_url(@token.mint_address) %>" style="display: inline-block; background-color: #00FF88; color: #000000; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">View Token Details</a>
+  </div>
+
+  <p style="color: #6B7280; font-size: 12px; text-align: center; margin-top: 32px;">
+    You're receiving this because you have this token on your watchlist.<br>
+    Not financial advice. DYOR.
+  </p>
+</div>

@@ -1,0 +1,82 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Portfolio Risk Monitor</h1>
+      <p class="text-sm text-gray-400 mt-1">Scan your wallet to check the risk of every token you hold.</p>
+    </div>
+  </div>
+
+  <!-- Scan Wallet Form -->
+  <div class="card mb-8">
+    <h2 class="text-lg font-semibold text-white mb-4">Scan Your Wallet</h2>
+    <%= form_with url: scan_wallet_portfolio_path, method: :post, class: "flex gap-3" do |f| %>
+      <%= f.text_field :wallet_address, placeholder: "Paste your Solana wallet address...", class: "input-field flex-1 font-mono text-sm" %>
+      <%= f.submit "Scan Portfolio", class: "btn-primary cursor-pointer whitespace-nowrap" %>
+    <% end %>
+  </div>
+
+  <% if @holdings.any? %>
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="card">
+        <div class="text-sm text-gray-400">Total Value</div>
+        <div class="text-2xl font-bold text-white mt-1">$<%= number_with_delimiter(@total_value.round(2)) %></div>
+      </div>
+      <div class="card">
+        <div class="text-sm text-gray-400">Tokens Held</div>
+        <div class="text-2xl font-bold text-white mt-1"><%= @holdings.count %></div>
+      </div>
+      <div class="card">
+        <div class="text-sm text-gray-400">Risky Tokens</div>
+        <div class="text-2xl font-bold <%= @risky_count > 0 ? 'text-red-400' : 'text-green-400' %> mt-1"><%= @risky_count %></div>
+      </div>
+    </div>
+
+    <!-- Holdings Table -->
+    <div class="card">
+      <h2 class="text-lg font-semibold text-white mb-4">Your Holdings</h2>
+      <div class="space-y-3">
+        <% @holdings.each do |holding| %>
+          <div class="flex items-center justify-between py-3 border-b border-brand-border last:border-0">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-green/20 to-brand-cyan/20 flex items-center justify-center text-sm font-bold text-brand-green shrink-0">
+                <%= holding.token_symbol&.first(2)&.upcase || "?" %>
+              </div>
+              <div>
+                <div class="text-sm text-white font-medium">
+                  <% if holding.token %>
+                    <%= link_to holding.token_name || holding.token_symbol || "Unknown", token_path(holding.token.mint_address), class: "hover:text-brand-green" %>
+                  <% else %>
+                    <%= holding.token_name || holding.token_symbol || holding.token_mint_address&.truncate(12) || "Unknown" %>
+                  <% end %>
+                </div>
+                <div class="text-xs text-gray-500">
+                  <%= number_with_delimiter(holding.amount&.round(4)) %> tokens
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <% if holding.value_usd %>
+                <span class="text-sm text-white font-mono">$<%= number_with_delimiter(holding.value_usd.round(2)) %></span>
+              <% end %>
+              <% if holding.risk_score %>
+                <span class="<%= holding.risk_score > 60 ? 'badge-high' : holding.risk_score > 30 ? 'badge-medium' : 'badge-safe' %>">
+                  <%= holding.risk_score %>/100
+                </span>
+              <% else %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-gray-500/20 border-gray-500/30 text-gray-400">Unscanned</span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="card text-center py-16">
+      <div class="text-4xl mb-4">&#128202;</div>
+      <h3 class="text-lg font-semibold text-white mb-2">No portfolio scanned yet</h3>
+      <p class="text-gray-400 mb-4">Paste your Solana wallet address above to see the risk level of every token you hold.</p>
+    </div>
+  <% end %>
+</div>

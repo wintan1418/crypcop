@@ -1,0 +1,10 @@
+CrypCop Alert: <%= @alert.title %>
+
+<%= @alert.message %>
+
+Token: <%= @token.name || @token.symbol || @token.mint_address %>
+<% if @token.risk_score %>Risk Score: <%= @token.risk_score %>/100<% end %>
+
+View details: <%= token_url(@token.mint_address) %>
+
+Not financial advice. DYOR.

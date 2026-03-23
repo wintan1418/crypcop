@@ -1,0 +1,80 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+      <p class="text-sm text-gray-400 mt-1">Welcome back, <%= current_user.email.split("@").first %>.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <% if current_user.pro? %>
+        <span class="badge bg-brand-green/20 border-brand-green/30 text-brand-green">Pro</span>
+      <% else %>
+        <span class="badge bg-gray-500/20 border-gray-500/30 text-gray-400">Free</span>
+        <%= link_to "Upgrade", subscription_path, class: "btn-sm btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+    <div class="card">
+      <div class="text-sm text-gray-400">Scans Today</div>
+      <div class="text-2xl font-bold text-white mt-1">
+        <%= current_user.daily_scan_count %><span class="text-gray-500 text-lg"><%= current_user.pro? ? "" : " / 10" %></span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="text-sm text-gray-400">Watchlist</div>
+      <div class="text-2xl font-bold text-white mt-1"><%= current_user.watchlist_items.count %></div>
+    </div>
+    <div class="card">
+      <div class="text-sm text-gray-400">Unread Alerts</div>
+      <div class="text-2xl font-bold text-white mt-1"><%= current_user.alerts.unread.count %></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Scans -->
+    <div class="card">
+      <h2 class="text-lg font-semibold text-white mb-4">Recent Scans</h2>
+      <% if @recent_scans.any? %>
+        <div class="space-y-3">
+          <% @recent_scans.each do |scan| %>
+            <div class="flex items-center justify-between py-2 border-b border-brand-border last:border-0">
+              <%= link_to token_path(scan.token.mint_address), class: "text-sm text-gray-300 hover:text-brand-green" do %>
+                <%= scan.token.name || scan.token.symbol || "Unknown" %>
+              <% end %>
+              <%= render "shared/risk_badge", level: scan.risk_level, score: scan.risk_score %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-sm">No scans yet. Head to the <%= link_to "Live Feed", feed_path, class: "text-brand-cyan" %> to start.</p>
+      <% end %>
+    </div>
+
+    <!-- Recent Alerts -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-white">Recent Alerts</h2>
+        <% if @recent_alerts.any? %>
+          <%= link_to "View All", alerts_path, class: "text-sm text-brand-cyan" %>
+        <% end %>
+      </div>
+      <% if @recent_alerts.any? %>
+        <div class="space-y-3">
+          <% @recent_alerts.each do |alert| %>
+            <div class="flex items-start gap-3 py-2 border-b border-brand-border last:border-0">
+              <span class="text-yellow-400 mt-0.5">&#128276;</span>
+              <div>
+                <div class="text-sm text-white"><%= alert.title %></div>
+                <div class="text-xs text-gray-500"><%= time_ago_in_words(alert.created_at) %> ago</div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-sm">No unread alerts. Add tokens to your watchlist to get notified.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

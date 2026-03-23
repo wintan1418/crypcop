@@ -1,0 +1,50 @@
+<div id="<%= dom_id(token) %>" class="card hover:border-brand-green/20 transition-all duration-300 group">
+  <div class="flex items-start justify-between gap-4">
+    <div class="flex items-center gap-3 min-w-0">
+      <% if token.image_url.present? %>
+        <img src="<%= token.image_url %>" alt="<%= token.symbol %>" class="w-10 h-10 rounded-full bg-gray-800" loading="lazy">
+      <% else %>
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-green/20 to-brand-cyan/20 flex items-center justify-center text-sm font-bold text-brand-green shrink-0">
+          <%= token.symbol&.first(2)&.upcase || "?" %>
+        </div>
+      <% end %>
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <%= link_to token_path(token.mint_address), class: "text-white font-semibold hover:text-brand-green transition-colors truncate" do %>
+            <%= token.name || "Unknown Token" %>
+          <% end %>
+          <span class="text-xs text-gray-500 font-mono"><%= token.symbol %></span>
+        </div>
+        <div class="flex items-center gap-3 mt-1 text-xs text-gray-500">
+          <span><%= token.age_text %></span>
+          <% if token.latest_price_usd %>
+            <span>$<%= number_with_precision(token.latest_price_usd, precision: token.latest_price_usd < 0.01 ? 8 : 4, significant: true) %></span>
+          <% end %>
+          <% if token.market_cap_usd %>
+            <span>MC: $<%= number_to_human(token.market_cap_usd, precision: 2, significant: true) %></span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 shrink-0">
+      <% if token.risk_score %>
+        <%= render "shared/risk_badge", level: token.risk_level, score: token.risk_score %>
+      <% else %>
+        <span class="badge bg-gray-500/20 border-gray-500/30 text-gray-400">Unscanned</span>
+      <% end %>
+    </div>
+  </div>
+
+  <% if token.top_10_holder_pct %>
+    <div class="mt-3">
+      <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+        <span>Top 10 holders</span>
+        <span><%= token.top_10_holder_pct %>%</span>
+      </div>
+      <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
+        <div class="h-full rounded-full <%= token.top_10_holder_pct.to_f > 50 ? 'bg-red-500' : token.top_10_holder_pct.to_f > 30 ? 'bg-yellow-500' : 'bg-green-500' %>" style="width: <%= [token.top_10_holder_pct.to_f, 100].min %>%"></div>
+      </div>
+    </div>
+  <% end %>
+</div>

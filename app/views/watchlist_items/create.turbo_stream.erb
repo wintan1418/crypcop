@@ -1,0 +1,14 @@
+<%= turbo_stream.replace "watchlist-btn-#{@watchlist_item.token_id}" do %>
+  <div id="watchlist-btn-<%= @watchlist_item.token_id %>">
+    <%= button_to watchlist_item_path(@watchlist_item), method: :delete, class: "btn-sm btn-danger", data: { turbo_frame: "_top" } do %>
+      <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24"><path d="M4.5 12.75l6 6 9-13.5" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      Watching
+    <% end %>
+  </div>
+<% end %>
+
+<%= turbo_stream.prepend "flash-messages" do %>
+  <div class="flex items-center gap-3 px-4 py-3 rounded-lg border border-brand-green/50 bg-brand-green/10 text-brand-green shadow-lg" data-controller="toast" data-toast-target="message">
+    <span class="text-sm font-medium">Added to watchlist</span>
+  </div>
+<% end %>

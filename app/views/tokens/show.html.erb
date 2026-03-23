@@ -1,0 +1,217 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <!-- Header -->
+  <div class="flex items-start justify-between gap-4 mb-8">
+    <div class="flex items-center gap-4">
+      <% if @token.image_url.present? %>
+        <img src="<%= @token.image_url %>" alt="<%= @token.symbol %>" class="w-16 h-16 rounded-full bg-gray-800">
+      <% else %>
+        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-brand-green/20 to-brand-cyan/20 flex items-center justify-center text-2xl font-bold text-brand-green">
+          <%= @token.symbol&.first(2)&.upcase || "?" %>
+        </div>
+      <% end %>
+      <div>
+        <h1 class="text-2xl font-bold text-white"><%= @token.name || "Unknown Token" %></h1>
+        <div class="flex items-center gap-3 mt-1">
+          <span class="text-sm text-gray-400 font-mono"><%= @token.symbol %></span>
+          <span class="text-xs text-gray-600 font-mono truncate max-w-48"><%= @token.mint_address %></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <% if user_signed_in? %>
+        <%= button_to scan_token_path(@token.mint_address), class: "btn-sm btn-primary", method: :post do %>
+          Scan Now
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left: Risk Score + AI Summary -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Risk Score -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-white">Risk Assessment</h2>
+          <% if @token.risk_score %>
+            <%= render "shared/risk_badge", level: @token.risk_level, score: @token.risk_score %>
+          <% end %>
+        </div>
+
+        <% if @latest_scan %>
+          <!-- Risk Score Display -->
+          <div class="flex items-center gap-6 mb-6">
+            <div class="relative w-24 h-24">
+              <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#1F2937" stroke-width="8"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke-width="8" stroke-linecap="round"
+                  class="<%= @token.risk_score.to_i <= 20 ? 'stroke-green-500' : @token.risk_score.to_i <= 40 ? 'stroke-yellow-500' : @token.risk_score.to_i <= 60 ? 'stroke-orange-500' : 'stroke-red-500' %>"
+                  stroke-dasharray="<%= (@token.risk_score.to_f / 100 * 251.2).round(1) %> 251.2"/>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="text-2xl font-bold <%= risk_score_color(@token.risk_score) %>"><%= @token.risk_score %></span>
+              </div>
+            </div>
+            <div>
+              <div class="text-sm text-gray-400">Risk Level</div>
+              <div class="text-xl font-bold <%= @token.risk_color %>"><%= @token.risk_level&.capitalize %></div>
+              <div class="text-xs text-gray-500 mt-1">Scanned <%= time_ago_in_words(@token.last_scanned_at) %> ago</div>
+            </div>
+          </div>
+
+          <!-- AI Summary -->
+          <% if @latest_scan.ai_summary.present? %>
+            <div class="p-4 rounded-lg bg-brand-cyan/5 border border-brand-cyan/20">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-brand-cyan text-sm font-semibold">AI Analysis</span>
+              </div>
+              <p class="text-sm text-gray-300 leading-relaxed"><%= @latest_scan.ai_summary %></p>
+            </div>
+          <% end %>
+
+          <!-- Red Flags -->
+          <% if @latest_scan.flags.present? && @latest_scan.flags.any? %>
+            <div class="mt-4">
+              <h3 class="text-sm font-semibold text-red-400 mb-2">Red Flags Detected</h3>
+              <div class="space-y-2">
+                <% @latest_scan.flags.each do |flag| %>
+                  <div class="flex items-center gap-2 text-sm text-gray-300">
+                    <span class="text-red-400">&#9888;</span>
+                    <%= flag %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="text-center py-8">
+            <p class="text-gray-400">This token hasn't been scanned yet.</p>
+            <% if user_signed_in? %>
+              <%= button_to "Run First Scan", scan_token_path(@token.mint_address), method: :post, class: "btn-primary mt-4" %>
+            <% else %>
+              <%= link_to "Sign in to Scan", new_user_session_path, class: "btn-primary mt-4" %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Community Trust -->
+      <div class="card">
+        <h2 class="text-lg font-semibold text-white mb-4">Community Trust</h2>
+        <div class="flex items-center gap-4">
+          <div class="flex-1">
+            <div class="flex items-center justify-between text-sm mb-2">
+              <span class="text-green-400">Trust (<%= @token.trust_count %>)</span>
+              <span class="text-red-400">Distrust (<%= @token.distrust_count %>)</span>
+            </div>
+            <div class="w-full h-3 bg-gray-800 rounded-full overflow-hidden flex">
+              <% if @token.trust_ratio > 0 %>
+                <div class="h-full bg-green-500 rounded-l-full" style="width: <%= @token.trust_ratio %>%"></div>
+              <% end %>
+              <% if @token.trust_ratio < 100 && @token.trust_count + @token.distrust_count > 0 %>
+                <div class="h-full bg-red-500 rounded-r-full" style="width: <%= 100 - @token.trust_ratio %>%"></div>
+              <% end %>
+            </div>
+          </div>
+          <% if user_signed_in? %>
+            <div class="flex items-center gap-2">
+              <%= button_to vote_token_path(@token.mint_address, vote: :trust), method: :post, class: "btn-sm text-green-400 border border-green-500/30 hover:bg-green-500/10" do %>
+                &#128077;
+              <% end %>
+              <%= button_to vote_token_path(@token.mint_address, vote: :distrust), method: :post, class: "btn-sm text-red-400 border border-red-500/30 hover:bg-red-500/10" do %>
+                &#128078;
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right sidebar: Token Info -->
+    <div class="space-y-6">
+      <!-- Token Data -->
+      <div class="card">
+        <h2 class="text-lg font-semibold text-white mb-4">Token Info</h2>
+        <dl class="space-y-3">
+          <% if @token.latest_price_usd %>
+            <div class="flex justify-between">
+              <dt class="text-sm text-gray-400">Price</dt>
+              <dd class="text-sm text-white font-mono">$<%= number_with_precision(@token.latest_price_usd, precision: @token.latest_price_usd < 0.01 ? 8 : 4, significant: true) %></dd>
+            </div>
+          <% end %>
+          <% if @token.market_cap_usd %>
+            <div class="flex justify-between">
+              <dt class="text-sm text-gray-400">Market Cap</dt>
+              <dd class="text-sm text-white">$<%= number_to_human(@token.market_cap_usd, precision: 2) %></dd>
+            </div>
+          <% end %>
+          <% if @token.liquidity_usd %>
+            <div class="flex justify-between">
+              <dt class="text-sm text-gray-400">Liquidity</dt>
+              <dd class="text-sm text-white">$<%= number_to_human(@token.liquidity_usd, precision: 2) %></dd>
+            </div>
+          <% end %>
+          <% if @token.holder_count %>
+            <div class="flex justify-between">
+              <dt class="text-sm text-gray-400">Holders</dt>
+              <dd class="text-sm text-white"><%= number_with_delimiter(@token.holder_count) %></dd>
+            </div>
+          <% end %>
+          <div class="flex justify-between">
+            <dt class="text-sm text-gray-400">Age</dt>
+            <dd class="text-sm text-white"><%= @token.age_text %></dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Contract Info -->
+      <div class="card">
+        <h2 class="text-lg font-semibold text-white mb-4">Contract</h2>
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-xs text-gray-500">Mint Authority</dt>
+            <dd class="text-sm mt-0.5 <%= @token.mint_authority_revoked ? 'text-green-400' : 'text-red-400' %>">
+              <%= @token.mint_authority_revoked ? "Revoked" : "Active" %>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs text-gray-500">Freeze Authority</dt>
+            <dd class="text-sm mt-0.5 <%= @token.freeze_authority_revoked ? 'text-green-400' : 'text-red-400' %>">
+              <%= @token.freeze_authority_revoked ? "Revoked" : "Active" %>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs text-gray-500">LP Locked</dt>
+            <dd class="text-sm mt-0.5 <%= @token.lp_locked ? 'text-green-400' : 'text-red-400' %>">
+              <%= @token.lp_locked ? "Yes" : "No / Unknown" %>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs text-gray-500">Metadata Mutable</dt>
+            <dd class="text-sm mt-0.5 <%= @token.is_mutable ? 'text-yellow-400' : 'text-green-400' %>">
+              <%= @token.is_mutable ? "Yes" : "No" %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Watchlist -->
+      <% if user_signed_in? %>
+        <div id="watchlist-btn-<%= @token.id %>">
+          <% watching = current_user.watchlist_items.exists?(token: @token) %>
+          <% if watching %>
+            <% item = current_user.watchlist_items.find_by(token: @token) %>
+            <%= button_to watchlist_item_path(item), method: :delete, class: "btn-danger w-full" do %>
+              Remove from Watchlist
+            <% end %>
+          <% else %>
+            <%= button_to watchlist_items_path(token_id: @token.id), method: :post, class: "btn-secondary w-full" do %>
+              Add to Watchlist
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

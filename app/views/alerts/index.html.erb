@@ -1,0 +1,47 @@
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Alerts</h1>
+      <p class="text-sm text-gray-400 mt-1">Risk changes and updates for your watched tokens.</p>
+    </div>
+    <% if @alerts.unread.any? %>
+      <%= button_to "Mark All Read", mark_all_read_alerts_path, method: :post, class: "btn-sm text-gray-400 hover:text-white border border-brand-border" %>
+    <% end %>
+  </div>
+
+  <% if @alerts.any? %>
+    <div class="space-y-3">
+      <% @alerts.each do |alert| %>
+        <div class="card flex items-start gap-4 <%= alert.read? ? 'opacity-60' : '' %>">
+          <span class="text-xl mt-0.5">
+            <% if alert.risk_increase? %>&#128680;
+            <% elsif alert.risk_decrease? %>&#9989;
+            <% elsif alert.price_change? %>&#128200;
+            <% elsif alert.liquidity_removed? %>&#128681;
+            <% else %>&#128276;
+            <% end %>
+          </span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="text-sm font-semibold text-white truncate"><%= alert.title %></h3>
+              <span class="text-xs text-gray-500 whitespace-nowrap"><%= time_ago_in_words(alert.created_at) %> ago</span>
+            </div>
+            <p class="text-sm text-gray-400 mt-1"><%= alert.message %></p>
+            <div class="flex items-center gap-3 mt-2">
+              <%= link_to "View Token", token_path(alert.token.mint_address), class: "text-xs text-brand-cyan hover:text-brand-cyan/80" %>
+              <% unless alert.read? %>
+                <%= button_to "Mark Read", mark_read_alert_path(alert), method: :patch, class: "text-xs text-gray-500 hover:text-gray-300" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card text-center py-16">
+      <div class="text-4xl mb-4">&#128276;</div>
+      <h3 class="text-lg font-semibold text-white mb-2">No alerts yet</h3>
+      <p class="text-gray-400">Add tokens to your watchlist to receive risk change notifications.</p>
+    </div>
+  <% end %>
+</div>

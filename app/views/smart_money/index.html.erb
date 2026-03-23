@@ -1,0 +1,69 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Smart Money Feed</h1>
+      <p class="text-sm text-gray-400 mt-1">See what profitable wallets are buying and selling in real-time.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-brand-green animate-pulse"></span>
+      <span class="text-sm text-brand-green">Live</span>
+    </div>
+  </div>
+
+  <% if @recent_transactions.any? %>
+    <!-- Smart Money Activity -->
+    <div class="space-y-3">
+      <% @recent_transactions.each do |tx| %>
+        <div class="card flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <% if tx.buy? %>
+              <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                <span class="text-green-400 text-lg">&#128176;</span>
+              </div>
+            <% else %>
+              <div class="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                <span class="text-red-400 text-lg">&#128184;</span>
+              </div>
+            <% end %>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-white font-semibold"><%= tx.tracked_wallet.label || tx.tracked_wallet.wallet_address.truncate(12) %></span>
+                <span class="text-xs <%= tx.buy? ? 'text-green-400' : 'text-red-400' %> font-medium uppercase"><%= tx.tx_type %></span>
+              </div>
+              <div class="flex items-center gap-2 mt-1">
+                <% if tx.token %>
+                  <%= link_to tx.token.name || tx.token_symbol || "Unknown", token_path(tx.token.mint_address), class: "text-sm text-brand-cyan hover:text-brand-cyan/80" %>
+                <% else %>
+                  <span class="text-sm text-gray-400"><%= tx.token_symbol || "Unknown Token" %></span>
+                <% end %>
+                <% if tx.transacted_at %>
+                  <span class="text-xs text-gray-500">&#183; <%= time_ago_in_words(tx.transacted_at) %> ago</span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-right">
+            <% if tx.value_usd %>
+              <div class="text-white font-mono text-sm">$<%= number_with_delimiter(tx.value_usd.round(2)) %></div>
+            <% end %>
+            <% if tx.token&.risk_score %>
+              <%= render "shared/risk_badge", level: tx.token.risk_level, score: tx.token.risk_score %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card text-center py-16">
+      <div class="text-4xl mb-4">&#129504;</div>
+      <h3 class="text-lg font-semibold text-white mb-2">Smart Money feed is building up</h3>
+      <p class="text-gray-400 mb-4">As wallets are tracked and marked as "smart money", their trades will appear here.</p>
+      <% if user_signed_in? %>
+        <%= link_to "Track a Wallet", tracked_wallets_path, class: "btn-primary" %>
+      <% else %>
+        <%= link_to "Sign Up to Track Wallets", new_user_registration_path, class: "btn-primary" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
