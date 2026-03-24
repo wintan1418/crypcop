@@ -5,7 +5,7 @@ module Webhooks
     def create
       update = Telegram::Bot::Types::Update.new(JSON.parse(request.body.read))
       if update.message
-        Telegram::BotService.new.handle_command(update.message)
+        TgBot::BotService.new.handle_command(update.message)
       end
       head :ok
     rescue => e
