@@ -10,6 +10,7 @@ class User < ApplicationRecord
   has_one :subscription, dependent: :destroy
   has_many :tracked_wallets, dependent: :destroy
   has_many :portfolio_holdings, dependent: :destroy
+  has_many :api_keys, dependent: :destroy
 
   enum :tier, { free: 0, pro: 1 }
 

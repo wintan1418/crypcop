@@ -37,11 +37,27 @@ Rails.application.routes.draw do
     end
   end
 
+  # API key management
+  resources :api_keys, only: [ :index, :create, :destroy ]
+
+  # Verified badges
+  resources :verified_tokens, only: [ :index, :new, :create ]
+
+  # Subscription
   resource :subscription, only: [ :show, :create, :destroy ] do
     get :success
     get :cancel
   end
 
+  # Public REST API
+  namespace :api do
+    namespace :v1 do
+      get "scan/:address", to: "tokens#scan", as: :scan_token
+      get "token/:address", to: "tokens#show", as: :token
+    end
+  end
+
+  # Webhooks
   post "webhooks/stripe", to: "webhooks/stripe#create"
   post "webhooks/telegram", to: "webhooks/telegram#create"
 

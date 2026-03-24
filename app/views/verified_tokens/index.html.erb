@@ -1,0 +1,59 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-white">CrypCop Verified Tokens</h1>
+      <p class="text-sm text-gray-400 mt-1">Tokens that have been audited and verified by CrypCop.</p>
+    </div>
+    <%= link_to "Get Verified", new_verified_token_path, class: "btn-primary" %>
+  </div>
+
+  <!-- Pricing -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="card text-center">
+      <div class="text-2xl mb-2">&#128994;</div>
+      <h3 class="text-lg font-semibold text-white">Basic</h3>
+      <div class="text-3xl font-bold text-white mt-2">$200</div>
+      <div class="text-sm text-gray-400">1 year</div>
+      <p class="text-xs text-gray-500 mt-3">Verified badge on token page, basic audit review</p>
+    </div>
+    <div class="card text-center border-brand-green/30">
+      <div class="text-2xl mb-2">&#11088;</div>
+      <h3 class="text-lg font-semibold text-brand-green">Premium</h3>
+      <div class="text-3xl font-bold text-white mt-2">$350</div>
+      <div class="text-sm text-gray-400">1 year</div>
+      <p class="text-xs text-gray-500 mt-3">Premium badge, featured in feed, priority review</p>
+    </div>
+    <div class="card text-center">
+      <div class="text-2xl mb-2">&#127942;</div>
+      <h3 class="text-lg font-semibold text-yellow-400">Gold</h3>
+      <div class="text-3xl font-bold text-white mt-2">$500</div>
+      <div class="text-sm text-gray-400">1 year</div>
+      <p class="text-xs text-gray-500 mt-3">Gold badge, top placement, social media promotion</p>
+    </div>
+  </div>
+
+  <!-- Verified List -->
+  <% if @verified_tokens.any? %>
+    <div class="space-y-3">
+      <% @verified_tokens.each do |vt| %>
+        <div class="card flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <% badge_emoji = case vt.badge_type; when "basic" then "&#128994;"; when "premium" then "&#11088;"; when "gold" then "&#127942;"; end %>
+            <span class="text-2xl"><%= badge_emoji %></span>
+            <div>
+              <%= link_to token_path(vt.token.mint_address), class: "text-white font-semibold hover:text-brand-green" do %>
+                <%= vt.project_name || vt.token.name || vt.token.symbol %>
+              <% end %>
+              <div class="text-xs text-gray-500"><%= vt.badge_type.titleize %> Verified · Expires <%= vt.expires_at&.strftime("%b %Y") %></div>
+            </div>
+          </div>
+          <span class="badge-safe">Verified</span>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card text-center py-12">
+      <p class="text-gray-400">No verified tokens yet. Be the first to get your token verified!</p>
+    </div>
+  <% end %>
+</div>

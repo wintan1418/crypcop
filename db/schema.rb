@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_23_230310) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_24_130135) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -29,6 +29,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_23_230310) do
     t.index ["user_id", "created_at"], name: "index_alerts_on_user_id_and_created_at"
     t.index ["user_id", "read_at"], name: "index_alerts_on_user_id_and_read_at"
     t.index ["user_id"], name: "index_alerts_on_user_id"
+  end
+
+  create_table "api_keys", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "key", null: false
+    t.string "name"
+    t.integer "tier", default: 0, null: false
+    t.integer "calls_today", default: 0, null: false
+    t.integer "calls_limit", default: 100, null: false
+    t.datetime "last_used_at"
+    t.boolean "active", default: true, null: false
+    t.datetime "calls_reset_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_api_keys_on_key", unique: true
+    t.index ["user_id"], name: "index_api_keys_on_user_id"
   end
 
   create_table "portfolio_holdings", force: :cascade do |t|
@@ -177,6 +193,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_23_230310) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "verified_tokens", force: :cascade do |t|
+    t.bigint "token_id", null: false
+    t.datetime "verified_at"
+    t.datetime "expires_at"
+    t.string "payment_tx"
+    t.decimal "amount_paid", precision: 10, scale: 2
+    t.integer "badge_type", default: 0, null: false
+    t.string "contact_email"
+    t.string "project_url"
+    t.string "project_name"
+    t.text "description"
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_verified_tokens_on_status"
+    t.index ["token_id"], name: "index_verified_tokens_on_token_id"
+  end
+
   create_table "wallet_transactions", force: :cascade do |t|
     t.bigint "tracked_wallet_id", null: false
     t.bigint "token_id"
@@ -212,6 +246,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_23_230310) do
 
   add_foreign_key "alerts", "tokens"
   add_foreign_key "alerts", "users"
+  add_foreign_key "api_keys", "users"
   add_foreign_key "portfolio_holdings", "tokens"
   add_foreign_key "portfolio_holdings", "users"
   add_foreign_key "scans", "tokens"
@@ -220,6 +255,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_23_230310) do
   add_foreign_key "tracked_wallets", "users"
   add_foreign_key "trust_votes", "tokens"
   add_foreign_key "trust_votes", "users"
+  add_foreign_key "verified_tokens", "tokens"
   add_foreign_key "wallet_transactions", "tokens"
   add_foreign_key "wallet_transactions", "tracked_wallets"
   add_foreign_key "watchlist_items", "tokens"

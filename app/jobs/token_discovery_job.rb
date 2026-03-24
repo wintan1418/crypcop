@@ -7,6 +7,7 @@ class TokenDiscoveryJob < ApplicationJob
 
     new_tokens.each do |token|
       BroadcastTokenJob.perform_later(token.id)
+      SniperAlertJob.perform_later(token.id)
     end
   end
 end

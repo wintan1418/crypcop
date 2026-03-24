@@ -6,6 +6,7 @@ class Token < ApplicationRecord
   has_many :watchers, through: :watchlist_items, source: :user
   has_many :trust_votes, dependent: :destroy
   has_many :alerts, dependent: :destroy
+  has_many :verified_tokens, dependent: :destroy
 
   validates :mint_address, presence: true, uniqueness: true
 
