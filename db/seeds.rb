@@ -1,128 +1,78 @@
 puts "Seeding CrypCop..."
 
-# Create demo user
-demo = User.find_or_create_by!(email: "demo@crypcop.com") do |u|
-  u.password = "password123"
-  u.password_confirmation = "password123"
-  u.tier = :free
-end
-puts "  Created demo user: demo@crypcop.com / password123"
-
-# Create sample tokens
-tokens_data = [
-  {
-    mint_address: "So11111111111111111111111111111111111111112",
-    name: "Wrapped SOL", symbol: "SOL", decimals: 9,
-    latest_price_usd: 145.32, market_cap_usd: 72_000_000_000,
-    liquidity_usd: 500_000_000, volume_24h_usd: 2_000_000_000,
-    holder_count: 5_000_000, top_10_holder_pct: 12.5,
-    mint_authority_revoked: true, freeze_authority_revoked: true,
-    lp_locked: true, is_mutable: false,
-    risk_score: 5, risk_level: :safe,
-    created_on_chain_at: 3.years.ago, last_scanned_at: 1.hour.ago
-  },
-  {
-    mint_address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    name: "USD Coin", symbol: "USDC", decimals: 6,
-    latest_price_usd: 1.0, market_cap_usd: 45_000_000_000,
-    liquidity_usd: 1_000_000_000, volume_24h_usd: 5_000_000_000,
-    holder_count: 3_000_000, top_10_holder_pct: 18.0,
-    mint_authority_revoked: false, freeze_authority_revoked: false,
-    lp_locked: true, is_mutable: false,
-    risk_score: 30, risk_level: :low,
-    created_on_chain_at: 2.years.ago, last_scanned_at: 30.minutes.ago
-  },
-  {
-    mint_address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-    name: "Bonk", symbol: "BONK", decimals: 5,
-    latest_price_usd: 0.0000234, market_cap_usd: 1_500_000_000,
-    liquidity_usd: 45_000_000, volume_24h_usd: 120_000_000,
-    holder_count: 800_000, top_10_holder_pct: 22.0,
-    mint_authority_revoked: true, freeze_authority_revoked: true,
-    lp_locked: true, is_mutable: false,
-    risk_score: 12, risk_level: :safe,
-    created_on_chain_at: 1.year.ago, last_scanned_at: 2.hours.ago
-  },
-  {
-    mint_address: "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
-    name: "Jupiter", symbol: "JUP", decimals: 6,
-    latest_price_usd: 0.85, market_cap_usd: 1_100_000_000,
-    liquidity_usd: 35_000_000, volume_24h_usd: 80_000_000,
-    holder_count: 400_000, top_10_holder_pct: 28.0,
-    mint_authority_revoked: true, freeze_authority_revoked: true,
-    lp_locked: true, is_mutable: false,
-    risk_score: 15, risk_level: :safe,
-    created_on_chain_at: 6.months.ago, last_scanned_at: 1.hour.ago
-  },
-  {
-    mint_address: "FakeRug111111111111111111111111111111111111",
-    name: "MOONSHOT2024", symbol: "MOON",
-    latest_price_usd: 0.000001, market_cap_usd: 5000,
-    liquidity_usd: 800, volume_24h_usd: 200,
-    holder_count: 8, top_10_holder_pct: 92.0,
-    mint_authority_revoked: false, freeze_authority_revoked: false,
-    lp_locked: false, is_mutable: true,
-    risk_score: 95, risk_level: :critical,
-    created_on_chain_at: 20.minutes.ago, last_scanned_at: 10.minutes.ago
-  },
-  {
-    mint_address: "SuspToken22222222222222222222222222222222222",
-    name: "ELONPUMP", symbol: "EPUMP",
-    latest_price_usd: 0.00005, market_cap_usd: 25000,
-    liquidity_usd: 3000, volume_24h_usd: 1500,
-    holder_count: 35, top_10_holder_pct: 68.0,
-    mint_authority_revoked: false, freeze_authority_revoked: true,
-    lp_locked: false, is_mutable: true,
-    risk_score: 72, risk_level: :high,
-    created_on_chain_at: 2.hours.ago, last_scanned_at: 30.minutes.ago
-  },
-  {
-    mint_address: "MedRisk333333333333333333333333333333333333",
-    name: "CatCoin", symbol: "CAT",
-    latest_price_usd: 0.002, market_cap_usd: 150000,
-    liquidity_usd: 12000, volume_24h_usd: 8000,
-    holder_count: 250, top_10_holder_pct: 45.0,
-    mint_authority_revoked: true, freeze_authority_revoked: true,
-    lp_locked: false, is_mutable: true,
-    risk_score: 48, risk_level: :medium,
-    created_on_chain_at: 5.hours.ago, last_scanned_at: 1.hour.ago
-  }
+# Real Solana tokens — blue chips and popular memecoins
+real_tokens = [
+  { mint_address: "So11111111111111111111111111111111111111112", name: "Wrapped SOL", symbol: "SOL" },
+  { mint_address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", name: "USD Coin", symbol: "USDC" },
+  { mint_address: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", name: "Tether", symbol: "USDT" },
+  { mint_address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263", name: "Bonk", symbol: "BONK" },
+  { mint_address: "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN", name: "Jupiter", symbol: "JUP" },
+  { mint_address: "7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr", name: "Popcat", symbol: "POPCAT" },
+  { mint_address: "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm", name: "dogwifhat", symbol: "WIF" },
+  { mint_address: "rndrizKT3MK1iimdxRdWabcF7Zg7AR5T4nud4EkHBof", name: "Render", symbol: "RENDER" },
+  { mint_address: "HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3", name: "Pyth Network", symbol: "PYTH" },
+  { mint_address: "hntyVP6YFm1Hg25TN9WGLqM12b8TQmcknKrdu1oxWux", name: "Helium", symbol: "HNT" },
+  { mint_address: "SHDWyBxihqiCj6YekG2GUr7wqKLeLAMK1gHZck9pL6y", name: "Shadow", symbol: "SHDW" },
+  { mint_address: "jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL", name: "Jito", symbol: "JTO" },
+  { mint_address: "TNSRxcUxoT9xBG3de7PiJyTDYu7kskLqcpddxnEJAS6", name: "Tensor", symbol: "TNSR" },
+  { mint_address: "85VBFQZC9TZkfaptBWjvUw7YbZjy52A6mjtPGjstQAmQ", name: "W", symbol: "W" },
 ]
 
-tokens_data.each do |data|
-  token = Token.find_or_create_by!(mint_address: data[:mint_address]) do |t|
-    data.except(:mint_address).each { |k, v| t.send(:"#{k}=", v) }
-  end
+real_tokens.each do |data|
+  next if Token.exists?(mint_address: data[:mint_address])
 
-  # Create a scan for each token
-  unless token.scans.any?
-    token.scans.create!(
-      risk_score: token.risk_score || 0,
-      risk_level: token.risk_level || :safe,
-      ai_summary: case token.risk_level&.to_s
-      when "safe" then "This token shows low risk. Key security features are in place with revoked authorities and locked liquidity."
-      when "low" then "Minor risk indicators detected. Mint authority is still active on this stablecoin but this is expected for USDC."
-      when "medium" then "Moderate risk detected. LP is unlocked and metadata is mutable. Top holders own #{token.top_10_holder_pct}% of supply."
-      when "high" then "HIGH RISK: Multiple red flags detected. Mint authority active, LP unlocked, high holder concentration at #{token.top_10_holder_pct}%."
-      when "critical" then "CRITICAL: This token exhibits classic rug-pull patterns. Unrevoked mint/freeze authorities, 92% holder concentration, $800 liquidity. Strongly avoid."
-      else "Analysis pending."
-      end,
-      flags: token.risk_score.to_i > 50 ? [ "Mint authority active", "LP not locked", "High holder concentration" ] : [],
-      scan_type: :auto,
-      status: :completed,
-      completed_at: token.last_scanned_at || Time.current
-    )
+  token = Token.create!(
+    mint_address: data[:mint_address],
+    name: data[:name],
+    symbol: data[:symbol],
+    created_on_chain_at: Time.current
+  )
+
+  # Fetch live data from Solana APIs if keys are available
+  if ENV["HELIUS_API_KEY"].present?
+    begin
+      Tokens::DataFetchService.new(token).fetch!
+      result = Analysis::RiskCalculatorService.new(token).calculate
+      token.scans.create!(
+        risk_score: result[:risk_score],
+        risk_level: result[:risk_level],
+        ai_summary: result[:summary],
+        flags: result[:flags],
+        scan_type: :auto,
+        status: :completed,
+        completed_at: Time.current
+      )
+      puts "  #{token.name} (#{token.symbol}) — Risk: #{result[:risk_score]}/100 (#{result[:risk_level]})"
+    rescue => e
+      puts "  #{token.name} — fetch failed: #{e.message}"
+    end
+  else
+    puts "  #{token.name} (#{token.symbol}) — created (no API key, skipping live data)"
   end
 end
 
-puts "  Created #{Token.count} tokens with scans"
+# Seed known whale/smart money wallets for the Smart Money feed
+smart_wallets = [
+  { wallet_address: "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1", label: "Raydium Authority", is_whale: true, is_smart_money: true },
+  { wallet_address: "HN7cABqLq46Es1jh92dQQisAi5YqpFCuHkYge4fPLBiN", label: "Wintermute", is_whale: true, is_smart_money: true },
+  { wallet_address: "AC5RDfQFmDS1deWZos921JfqscXdByf8BKHs5ACWjtW2", label: "Jump Trading", is_whale: true, is_smart_money: true },
+]
 
-# Add some tokens to demo user watchlist
-[ "So11111111111111111111111111111111111111112", "FakeRug111111111111111111111111111111111111" ].each do |addr|
-  token = Token.find_by(mint_address: addr)
-  next unless token
-  WatchlistItem.find_or_create_by!(user: demo, token: token)
+smart_wallets.each do |data|
+  # Create a system-level tracked wallet (no user association needed for public smart money feed)
+  # These will be tracked by the system for the Smart Money feed
+  # For now, skip if no admin user exists
+  admin = User.first
+  next unless admin
+
+  wallet = admin.tracked_wallets.find_or_create_by!(wallet_address: data[:wallet_address]) do |w|
+    w.label = data[:label]
+    w.is_whale = data[:is_whale]
+    w.is_smart_money = data[:is_smart_money]
+    w.notify_on_buy = false
+    w.notify_on_sell = false
+  end
+  puts "  Tracking: #{wallet.label} (#{wallet.wallet_address[0..12]}...)"
 end
 
-puts "  Added watchlist items for demo user"
-puts "Done! Login at demo@crypcop.com / password123"
+puts "\nDone! #{Token.count} tokens, #{TrackedWallet.count} tracked wallets"
