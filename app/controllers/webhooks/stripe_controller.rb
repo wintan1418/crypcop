@@ -7,9 +7,13 @@ module Webhooks
       sig_header = request.env["HTTP_STRIPE_SIGNATURE"]
 
       service = Billing::StripeWebhookService.new(payload, sig_header)
-      service.process!
+      result = service.process!
 
-      head :ok
+      if result.nil?
+        head :unauthorized
+      else
+        head :ok
+      end
     rescue => e
       Rails.logger.error "[StripeWebhook] Error: #{e.message}"
       head :bad_request
