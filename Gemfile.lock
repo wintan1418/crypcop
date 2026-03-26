@@ -376,7 +376,9 @@ GEM
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
     stringio (3.2.0)
-    stripe (18.4.2)
+    stripe (19.0.0)
+      bigdecimal
+      logger
     telegram-bot-ruby (2.6.0)
       dry-struct (~> 1.6)
       faraday (~> 2.0)
